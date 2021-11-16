@@ -7,7 +7,7 @@ class BaseConfig:
     POSTGRES_URL="uda3db.postgres.database.azure.com"  
     POSTGRES_USER="saly@uda3db" 
     POSTGRES_PW="Itachi0812"  
-    POSTGRES_DB="uda3db"
+    POSTGRES_DB="postgres"
     DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,db=POSTGRES_DB)
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI') or DB_URL
     CONFERENCE_ID = 1
