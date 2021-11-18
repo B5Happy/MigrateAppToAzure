@@ -42,7 +42,7 @@ def main(msg: func.ServiceBusMessage):
             to_emails=attendee.email ,
             subject= notification.subject,
             plain_text_content= notification.message )
-        email_client = SendGridAPIClient("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")
+        email_client = SendGridAPIClient(os.environ['SENDGRID_API_KEY'])
         email_client.send(email_msg)
         logging.info("Successfully notified %s", attendee.email)
         status = 'Notified {} attendees'.format(len(attendees))
