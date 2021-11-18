@@ -68,10 +68,8 @@ def notification():
             db.session.commit()
 
             #Call servicebus queue_client to enqueue notification ID
-            servicebus_client = ServiceBusClient.from_connection_string(conn_str=app.config.get('SERVICE_BUS_CONNECTION_STRING'), logging_enable=True)
-            sender = servicebus_client.get_queue_sender(queue_name='notificationqueue')
-            message = Message(notification.id)
-            sender.send_messages(message)
+            msg = Message(str(notification.id))
+            queue_client.send(msg)
 
             return redirect('/Notifications')
         except :
