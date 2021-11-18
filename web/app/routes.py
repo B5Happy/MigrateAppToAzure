@@ -69,7 +69,7 @@ def notification():
 
             #Call servicebus queue_client to enqueue notification ID
             servicebus_client = ServiceBusClient.from_connection_string(conn_str=app.config.get('SERVICE_BUS_CONNECTION_STRING'), logging_enable=True)
-            sender = servicebus_client.get_queue_sender(queue_name=app.config.get('SENDGRID_API_KEY'))
+            sender = servicebus_client.get_queue_sender(queue_name='notificationqueue')
             message = Message(notification.id)
             sender.send_messages(message)
 

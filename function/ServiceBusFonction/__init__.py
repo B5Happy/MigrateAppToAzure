@@ -12,17 +12,22 @@ def main(msg: func.ServiceBusMessage):
     logging.info('Python ServiceBus queue trigger processed message: %s',notification_id)
 
     # connection to database
-    conn = psycopg2.connect("dbname=test user=postgres")
+    conn = psycopg2.connect(host="uda3db.postgres.database.azure.com",
+                                database="postgres",
+                                user="saly@uda3db",
+                                password="Itachi0812")
 
     # Open a cursor to perform database operations
     cur = conn.cursor()
+    logging.info('Connecting to the PostgreSQL database...')
     
     try:
         # Get notification message and subject from database using the notification_id
-        cur.execute("Select massage, subject from notification where id = %s;",notification_id)
+        logging.info(notification_id)
+        cur.execute("Select message, subject from notification where id = %s;",(notification_id,))
         row = cur.fetchone()
         notification = Notification(row[0],row[1])
-        
+        logging.info(notification)
         # Get attendees email and name
         cur.execute("Select email, first_name from attendee;")
         rows = cur.fetchall()
@@ -33,17 +38,19 @@ def main(msg: func.ServiceBusMessage):
             attendee = Attendee(row[0], row[1])
             attendees.append(attendee)
         email_msg = Mail(
-                from_email="saly.moubarak@gmail.com",
-                to_emails=attendee.email ,
-                subject= notification.subject,
-                plain_text_content= notification.message )
+            from_email="saly.moubarak@gmail.com",
+            to_emails=attendee.email ,
+            subject= notification.subject,
+            plain_text_content= notification.message )
         email_client = SendGridAPIClient("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")
         email_client.send(email_msg)
-        
+        logging.info("Successfully notified %s", attendee.email)
+        status = 'Notified {} attendees'.format(len(attendees))
         # Update the notification table by setting the completed date and updating the status with the total number of attendees notified
-        cur.execute('UPDATE notification set status = Notified %s attendees, completed_date = %s where id = %s', (len(attendees), datetime.today(), notification_id ))
+        cur.execute('UPDATE NOTIFICATION SET STATUS = %s, COMPLETED_DATE = %s WHERE ID = %s', (status, datetime.utcnow(), notification_id,))
         conn.commit()
-    
+        logging.info("update successful")
+
     except (Exception, psycopg2.DatabaseError) as error:
         logging.error(error)
     finally:
